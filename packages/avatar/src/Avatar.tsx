@@ -2,7 +2,7 @@
 import * as React from 'react';
 import classNames from 'classnames'
 import type { AvatarSize, AvatarShape } from './Context';
-import { configContext } from './Context'
+import { ConfigContext, SizeContext } from './Context'
 
 export interface AvatarProps {
 	shape?: AvatarShape;
@@ -13,9 +13,10 @@ export interface AvatarProps {
 	prefixCls?: string;
   className?: string;
 	children?: React.ReactNode;
+	draggable?: boolean;
 	alt?: string;
 	srcSet?: string,
-	crossOrigin?: string,
+	crossOrigin?: "" | "anonymous" | "use-credentials";
 	onError?: () => boolean;
 }
 
@@ -32,18 +33,21 @@ export const InternalAvatar: React.FC<AvatarProps> = (props) => {
 		srcSet,
 		crossOrigin,
     children,
+		draggable,
     ...others
   } = props;
 
+	
 	const [isImgExist, setIsImgExist] = React.useState(true);
 	React.useEffect(() => {
 		setIsImgExist(true)
 	}, [])
-
-	const { getPrefixCls } = React.useContext(configContext) 
+	
+	const { getPrefixCls } = React.useContext(ConfigContext) 
 	const prefixCls = getPrefixCls('avatar', customizePrefixCls);
 	
-	const size = customSize
+	const groupSize = React.useContext(SizeContext);
+	const size = customSize === 'default' ? groupSize : customSize;
 	const sizeCls = classNames({
     [`${prefixCls}-lg`]: size === 'large',
     [`${prefixCls}-sm`]: size === 'small',
@@ -79,6 +83,7 @@ export const InternalAvatar: React.FC<AvatarProps> = (props) => {
 				alt={alt} 
 				srcSet={srcSet}
 				crossOrigin={crossOrigin}
+				draggable={draggable}
 				onError={handleImgLoadError}
 			/>
 		)
